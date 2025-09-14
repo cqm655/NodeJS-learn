@@ -9,6 +9,7 @@ const requestHandler = (req, res) => {
         res.write('<form action="/message" method="POST"><input type="text" name="message"/><button type="submit">Send</button></form>')
         res.write('</body>')
         res.write('</html>')
+        return res.end()
     }
     if (method === 'POST' && url === '/message') {
 
@@ -26,6 +27,7 @@ const requestHandler = (req, res) => {
                 res.end()
             })
         })
+        return res.end()
     }
 }
 
