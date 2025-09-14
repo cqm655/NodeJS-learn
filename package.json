@@ -4,7 +4,7 @@
   "description": "node.js course",
   "main": "server.js",
   "scripts": {
-    "start_server_1": "node lesson_1/server.js",
+    "start_server_1": "nodemon lesson_1/server.js",
     "start_server_2": "node lesson_1/exercise/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -17,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/cqm655/NodeJS-learn/issues"
   },
-  "homepage": "https://github.com/cqm655/NodeJS-learn#readme"
+  "homepage": "https://github.com/cqm655/NodeJS-learn#readme",
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
 }
