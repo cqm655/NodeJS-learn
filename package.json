@@ -5,7 +5,10 @@
   "main": "server.js",
   "scripts": {
     "start_server_1": "nodemon lesson_1/server.js",
-    "start_server_2": "node lesson_1/exercise/server.js",
+    "start_server_2": "nodemon lesson_1/exercise/server.js",
+    "start_server_3_express_exercise": "node lesson_2_express/exercise/app.js",
+    "start_server_3_express": "nodemon lesson_2_express/app.js",
+    "start_server_4_express_exercise2": "nodemon lesson_2_express/exercise2/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -20,5 +23,9 @@
   "homepage": "https://github.com/cqm655/NodeJS-learn#readme",
   "devDependencies": {
     "nodemon": "^3.1.10"
+  },
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "express": "^5.1.0"
   }
 }
