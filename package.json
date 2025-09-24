@@ -11,6 +11,9 @@
     "start_server_4_express_exercise2": "nodemon lesson_2_express/exercise2/app.js",
     "start_server_5": "nodemon lesson_3_dynamic_content/app.js",
     "start_server_5_pug": "nodemon lesson_3_dynamic_content/exercises/pug/app.js",
+    "start_server_5_handlebars": "nodemon lesson_3_dynamic_content/exercises/handlebars/app.js",
+    "start_server_5_ejs": "nodemon lesson_3_dynamic_content/exercises/ejs/app.js",
+    "start_server_5_new_project": "nodemon lesson_3_dynamic_content/exercises/new_project/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

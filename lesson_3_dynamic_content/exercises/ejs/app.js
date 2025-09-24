@@ -5,19 +5,23 @@ const bodyParser = require('body-parser')
 
 const app = express();
 
-const adminRoutes = require("./routes/admin");
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));  // Absolute path to the views folder
+
+
+const adminData = require("./routes/admin");
 
 const shopRoutes = require("./routes/shop");
 
 app.use(bodyParser.urlencoded({extended: false})) //middleware function, calls next in end
 app.use(express.static(path.join(__dirname, 'public'))) // a folder for read acces
 
-app.use('/admin', adminRoutes) //we can add a common pattern for all routes, all other paths will begin with it, /admin/add-product etc
+app.use('/admin', adminData.routes) //we can add a common pattern for all routes, all other paths will begin with it, /admin/add-product etc
 
 app.use(shopRoutes)
 
 app.use((req, res, next) => {
-    res.status(404).sendFile(path.join(__dirname, 'views', '404.ejs'))
+    res.status(404).render('404', {pageTitle: 'Not Found'})
 })
 
 // app.get('/product', (req, res) => {}) only for GET request
