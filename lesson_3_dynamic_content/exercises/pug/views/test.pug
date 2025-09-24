@@ -1,23 +1,17 @@
-html
-    head
-        link(rel="stylesheet", href="/css/main.css")
-        link(rel="stylesheet", href="/css/product.css")
-        title My Shop Test
-        body
-            header.main-header
-                nav.main-header__nav
-                    ul.main-header__item-list
-                        li.main-header__item
-                            a.active(href="/") Shop
-                        li.main-header__item
-                            a(href="/admin/add-product") Add Product
-main
-    if prods.length > 0
-        ul
-            each product in prods
-                li= product.title
-    else
-        p No products available.
+extends layouts/main-layouts
+
+block styles
+    link(rel="stylesheet", href="/css/main.css")
+    link(rel="stylesheet", href="/css/product.css")
+
+block content
+    main
+        if prods.length > 0
+            ul
+                each product in prods
+                    li= product.title
+        else
+            p No products available.
 
 
 

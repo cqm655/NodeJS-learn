@@ -20,7 +20,8 @@ app.use('/admin', adminData.routes) //we can add a common pattern for all routes
 app.use(shopRoutes)
 
 app.use((req, res, next) => {
-    res.status(404).sendFile(path.join(__dirname, 'views', '404.html'))
+    // res.status(404).sendFile(path.join(__dirname, 'views', '4004'))
+    res.render('4004')
 })
 
 app.listen(3000)

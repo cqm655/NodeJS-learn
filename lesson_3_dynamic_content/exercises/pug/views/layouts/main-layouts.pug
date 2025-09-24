@@ -1,0 +1,14 @@
+html
+    head
+
+        title My Shop Test #{docTitle}
+        block styles
+        body
+            header.main-header
+                nav.main-header__nav
+                    ul.main-header__item-list
+                        li.main-header__item
+                            a(href="/" class=(docTitle === 'Shop' ? 'active' : '')) Shop
+                        li.main-header__item
+                            a(href="/admin/add-product" ) Add Product
+            block content
