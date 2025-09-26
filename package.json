@@ -15,6 +15,7 @@
     "start_server_5_ejs": "nodemon lesson_3_dynamic_content/exercises/ejs/app.js",
     "start_server_5_new_project": "nodemon lesson_3_dynamic_content/exercises/new_project/app.js",
     "start_server_7_mcv": "nodemon lesson_4_mcv/app.js",
+    "start_server_8_dynamic_routes": "nodemon lesson_5_dynamic_routes/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

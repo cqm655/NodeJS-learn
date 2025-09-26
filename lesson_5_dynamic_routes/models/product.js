@@ -30,7 +30,16 @@ module.exports = class Product {
         getProductsFromFile(callback)
     }
 
+    static findById(id, callback) { //we run a qury when find a id
+        getProductsFromFile(products => {
+            const product = products.find(item => item.id.toString() === id);
+            callback(product);
+        })
+
+    }
+
     save() {
+        this.id = new Date().getTime().toString();
         getProductsFromFile(products => {
             products.push(this)
             fs.writeFile(p, JSON.stringify(products), err => {
