@@ -16,6 +16,7 @@
     "start_server_5_new_project": "nodemon lesson_3_dynamic_content/exercises/new_project/app.js",
     "start_server_7_mcv": "nodemon lesson_4_mcv/app.js",
     "start_server_8_dynamic_routes": "nodemon lesson_5_dynamic_routes/app.js",
+    "start_server_9_databse_connect": "nodemon lesson_6_connect_database/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -29,6 +30,7 @@
   },
   "homepage": "https://github.com/cqm655/NodeJS-learn#readme",
   "devDependencies": {
+    "@types/pg": "^8.15.5",
     "nodemon": "^3.1.10",
     "pug-cli": "^1.0.0-alpha6"
   },
@@ -37,6 +39,7 @@
     "ejs": "^3.1.10",
     "express": "^5.1.0",
     "express-handlebars": "^8.0.1",
+    "pg": "^8.16.3",
     "pug": "^3.0.3"
   }
 }
