@@ -3,11 +3,10 @@
     <button id="side-menu-toggle">Menu</button>
     <nav class="main-header__nav">
         <ul class="main-header__item-list">
-
-
             <li class="main-header__item">
                 <a class="<%= path === '/' ? 'active' : '' %>" href="/">Shop</a>
             </li>
+
             <li class="main-header__item">
                 <a class="<%= path === '/products' ? 'active' : '' %>" href="/products">Products</a>
             </li>
@@ -26,14 +25,11 @@
                 <a class="<%= path === '/admin/products' ? 'active' : '' %>" href="/admin/products">Admin Products
                 </a>
             </li>
+            <li class="main-header__item">
+                <a class="<%= path === '/login' ? 'active' : '' %>" href="/login">Login
+                </a>
+            </li>
 
-            <div class="login-box">
-
-                <li class="main-header__item">
-                    <a class="<%= path === '/login' ? 'active' : '' %>" href="/login">Login
-                    </a>
-                </li>
-            </div>
         </ul>
     </nav>
 </header>
@@ -58,6 +54,10 @@
         </li>
         <li class="mobile-nav__item">
             <a class="<%= path === '/admin/products' ? 'active' : '' %>" href="/admin/products">Admin Products
+            </a>
+        </li>
+        <li class="mobile-nav__item">
+            <a class="<%= path === '/login' ? 'active' : '' %>" href="/login">Login
             </a>
         </li>
     </ul>

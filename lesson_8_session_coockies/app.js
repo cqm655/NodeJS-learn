@@ -1,7 +1,32 @@
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
+const session = require('express-session')
 const app = express();
+const pg = require('pg');
+const pgSession = require('connect-pg-simple')(session);
+
+const pgPool = new pg.Pool({
+    host: 'localhost',
+    port: 5432,
+    user: 'postgres',
+    password: '1111',
+    database: 'NodeJS',
+})
+
+app.use(session({
+    store: new pgSession({
+        pool: pgPool,
+        tableName: 'sessions',
+        createTableIfMissing: true,
+    }),
+    secret: 'my secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        maxAge: 60 * 60 * 60,
+    }
+}))
 
 const sequelize = require('./util/database');
 const adminRoutes = require('./routes/admin');
@@ -20,6 +45,7 @@ app.set('views', path.join(__dirname, 'views'));
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(session({secret: 'secret', resave: false, saveUninitialized: false, store: store}));
 
 app.use((req, res, next) => {
     User.findOne()
