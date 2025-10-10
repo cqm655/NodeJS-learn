@@ -7,8 +7,5 @@ const pool = new Pool({
     port: 5432,
     database: 'NodeJS',
 })
-// pool.query('SELECT NOW()')
-//     .then(res => console.log(res.rows[0]))
-//     .catch(err => console.error('DB error:', err));
 
 module.exports = pool

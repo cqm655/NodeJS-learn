@@ -1,29 +1,65 @@
-const express = require('express')
-const path = require('path')
-const bodyParser = require('body-parser')
+const express = require('express');
+const path = require('path');
+const bodyParser = require('body-parser');
 const app = express();
 
+const sequelize = require('./util/database');
+const adminRoutes = require('./routes/admin');
+const shopRoutes = require('./routes/shop');
+const errorController = require('./controllers/error');
+const Product = require('./models/product');
+const User = require('./models/user');
+const Cart = require('./models/cart');
+const CartItem = require('./models/cart-item');
+const OrderItem = require('./models/order-item');
+const Order = require('./models/order');
+
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));  // Absolute path to the views folder
+app.set('views', path.join(__dirname, 'views'));
 
-const adminRoutes = require("./routes/admin");
-const shopRoutes = require("./routes/shop");
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(express.static(path.join(__dirname, 'public')));
 
-const errorController = require("./controllers/error");
-const sequilize = require("../lesson_7_sequillize/util/database");
+app.use((req, res, next) => {
+    User.findOne()
+        .then(user => {
+            req.user = user;
+            next();
+        })
+        .catch(err => console.log(err));
+});
 
-app.use(bodyParser.urlencoded({extended: false})) //middleware function, calls next in end
-app.use(express.static(path.join(__dirname, 'public'))) // a folder for read acces
+app.use('/admin', adminRoutes);
+app.use(shopRoutes);
 
-app.use('/admin', adminRoutes) //we can add a common pattern for all routes, all other paths will begin with it, /admin/add-product etc
-app.use(shopRoutes)
+app.use(errorController.get404);
 
-app.use(errorController.get404)
+Product.belongsTo(User, {constraints: true, onDelete: 'CASCADE'});
+User.hasMany(Product);
+User.hasOne(Cart);
+Cart.belongsTo(User)
+Cart.belongsToMany(Product, {through: CartItem})
+Product.belongsToMany(Cart, {through: CartItem})
+Order.belongsTo(User)
+User.hasMany(Order)
+Order.belongsToMany(Product, {through: OrderItem})
 
-sequilize.sync().then(() => {
-    console.log('Database ok')
+sequelize
+    //.sync({force: true})
+    .sync()
+    .then(() => User.findOne()) // caută primul user, nu după ID
+    .then(user => {
+        if (!user) {
+            return User.create({name: 'Alex', email: 'alex@test.com'});
+        }
+        return user;
+    })
+    .then(user => {
+        return user.createCart()
+    }).then(cart => {
+
+    console.log('Database ok');
     app.listen(3000)
-}).catch((err) => {
-    console.log(err)
 })
+    .catch(err => console.log(err));
 
