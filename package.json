@@ -18,6 +18,7 @@
     "start_server_8_dynamic_routes": "nodemon lesson_5_dynamic_routes/app.js",
     "start_server_9_databse_connect": "nodemon lesson_6_connect_database/app.js",
     "start_server_10_databse_sequilize": "nodemon lesson_7_sequillize/app.js",
+    "start_server_11_session_cockies": "nodemon lesson_8_session_coockies/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -40,6 +41,7 @@
     "ejs": "^3.1.10",
     "express": "^5.1.0",
     "express-handlebars": "^8.0.1",
+    "mongoose": "^8.19.1",
     "pg": "^8.16.3",
     "pg-hstore": "^2.3.4",
     "pug": "^3.0.3",
