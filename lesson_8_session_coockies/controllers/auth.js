@@ -1,12 +1,42 @@
+const User = require("../models/user");
+
 exports.getLogin = (req, res, next) => {
+    if (req.session.user) {
+        console.log('User found in session:', req.session.user.id);
+        return res.redirect('/');
+    }
+
     res.render('auth/login', {
         path: '/login',
-        pageTitle: 'Login'
-    })
+        pageTitle: 'Login',
+        isAuthenticated: false
+    });
 }
-exports.postLogin = (req, res, next) => {
-    req.session.isLoggedIn = true;
-    res.redirect('/')
+exports.postLogin = async (req, res, next) => {
+    const {email, password} = req.body
+    try {
+        const isUser = await User.findOne({where: {email: email}});
+
+        if (!isUser) {
+            return res.redirect('/login');
+        }
+
+        req.session.user = isUser;
+        req.session.isLoggedIn = true;
+
+        req.session.save((err) => {
+            if (err) {
+                console.log(err)
+            }
+
+            res.redirect('/')
+        })
+
+    } catch (error) {
+        console.log(error);
+        res.redirect('/login');
+    }
+
 }
 
 
