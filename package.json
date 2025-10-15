@@ -18,7 +18,8 @@
     "start_server_8_dynamic_routes": "nodemon lesson_5_dynamic_routes/app.js",
     "start_server_9_databse_connect": "nodemon lesson_6_connect_database/app.js",
     "start_server_10_databse_sequilize": "nodemon lesson_7_sequillize/app.js",
-    "start_server_11_session_cockies": "nodemon lesson_8_session_coockies/app.js"
+    "start_server_11_session_cockies": "nodemon lesson_8_session_coockies/app.js",
+    "start_server_12_authentication": "nodemon lesson_9_authentication/app.js"
   },
   "repository": {
     "type": "git",
