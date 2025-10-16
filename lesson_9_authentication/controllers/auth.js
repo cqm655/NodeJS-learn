@@ -42,9 +42,28 @@ exports.postLogin = async (req, res, next) => {
 }
 
 exports.postSignup = async (req, res, next) => {
+    const email = req.body.email;
+    const password = req.body.password;
+    const confirmPassword = req.body.confirmPassword;
+
+    User.findOne({where: {email: email}}).then(userDoc => {
+        if (userDoc) {
+            return res.redirect('/signup');
+        }
+        const user = new User({
+            email: email,
+            password: password,
+        })
+        return user.save()
+        
+    }).catch((err) => {
+        console.log(err)
+    })
+
 }
 
 exports.getSignup = (req, res, next) => {
+
     res.render('auth/signup', {
         path: '/signup',
         pageTitle: 'Signup',
