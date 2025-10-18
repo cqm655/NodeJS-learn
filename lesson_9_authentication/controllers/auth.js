@@ -1,4 +1,5 @@
 const User = require("../models/user");
+const bcrypt = require("bcryptjs");
 
 exports.getLogin = (req, res, next) => {
     if (req.session.user) {
@@ -12,34 +13,38 @@ exports.getLogin = (req, res, next) => {
         isAuthenticated: req.session.isAuthenticated
     });
 }
-exports.postLogin = async (req, res, next) => {
-    const {email, password} = req.body
+exports.postLogin = (req, res, next) => {
+    const {email, password} = req.body;
 
-    console.log('body', req.body)
-    try {
-        const isUser = await User.findOne({where: {email: email}});
-
-        if (!isUser) {
-            return res.redirect('/login');
-        }
-
-        req.session.user = isUser;
-        req.session.isLoggedIn = true;
-
-        req.session.save((err) => {
-            if (err) {
-                console.log(err)
+    User.findOne({where: {email}})
+        .then(user => {
+            if (!user) {
+                return res.redirect('/login');
             }
 
-            res.redirect('/')
+            return bcrypt.compare(password, user.password).then(isMatch => {
+                if (!isMatch) {
+                    return res.redirect('/login');
+                }
+
+                req.session.user = user;
+                req.session.isLoggedIn = true;
+
+                return user.getCart().then(cart => {
+                    if (!cart) {
+                        return user.createCart();
+                    }
+                    return cart;
+                }).then(() => {
+                    req.session.save(err => {
+                        if (err) console.log(err);
+                        res.redirect('/');
+                    });
+                });
+            });
         })
-
-    } catch (error) {
-        console.log(error);
-        res.redirect('/login');
-    }
-
-}
+        .catch(err => console.log(err));
+};
 
 exports.postSignup = async (req, res, next) => {
     const email = req.body.email;
@@ -50,13 +55,16 @@ exports.postSignup = async (req, res, next) => {
         if (userDoc) {
             return res.redirect('/signup');
         }
-        const user = new User({
-            email: email,
-            password: password,
-        })
-        return user.save()
-        
-    }).catch((err) => {
+        return bcrypt.hash(password, 12).then(hashedPassword => {
+            const user = new User({
+                email: email,
+                password: hashedPassword,
+            })
+            return user.save()
+        });
+
+    }).then(result =>
+        res.redirect('/login')).catch((err) => {
         console.log(err)
     })
 

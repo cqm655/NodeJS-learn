@@ -52,9 +52,13 @@ const OrderItem = require('./models/order-item');
 const Order = require('./models/order');
 
 app.use((req, res, next) => {
-    User.findOne()
+    if (!req.session.user) {
+        return next();
+    }
+    User.findByPk(req.session.user.id)
         .then(user => {
-            req.user = user;
+            if (!user) return next();
+            req.user = user; // user Sequelize real, cu metode getCart etc.
             next();
         })
         .catch(err => console.log(err));
@@ -77,21 +81,24 @@ User.hasMany(Order)
 Order.belongsToMany(Product, {through: OrderItem})
 
 sequelize
-    //.sync({force: true})
     .sync()
-    .then(() => User.findOne()) // caută primul user, nu după ID
-    .then(user => {
-        if (!user) {
-            return User.create({name: 'Alex', email: 'alex@test.com'});
-        }
-        return user;
+    .then(() => {
+        // caută un user existent
+        return User.findOne();
     })
     .then(user => {
-        return user.createCart()
-    }).then(cart => {
-
-    console.log('Database ok');
-    app.listen(3000)
-})
+        // verifică dacă userul are deja un coș
+        return user.getCart().then(cart => {
+            if (!cart) {
+                return user.createCart();
+            }
+            return cart;
+        });
+    })
+    .then(() => {
+        console.log('Database ok');
+        app.listen(3000);
+    })
     .catch(err => console.log(err));
+
 

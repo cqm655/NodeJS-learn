@@ -10,10 +10,17 @@ const User = sequelize.define('User', {
         allowNull: false,
     },
     name: Sequelize.STRING,
-    email: Sequelize.STRING,
+    email: {
+        type: Sequelize.STRING,
+        unique: true,
+
+    },
     password: {
         type: DataTypes.STRING,
-        required: true,
+        allowNull: false,
+        validate: {
+            notEmpty: true,
+        },
     },
 })
 
