@@ -22,6 +22,8 @@ const User = sequelize.define('User', {
             notEmpty: true,
         },
     },
+    resetToken: DataTypes.STRING,
+    resetTokenExpires: DataTypes.DATE,
 })
 
 module.exports = User

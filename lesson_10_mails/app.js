@@ -95,13 +95,21 @@ User.hasMany(Order)
 Order.belongsToMany(Product, {through: OrderItem})
 
 sequelize
-    .sync()
+    .sync({alter: true})
     .then(() => {
-        // caută un user existent
         return User.findOne();
     })
     .then(user => {
-        // verifică dacă userul are deja un coș
+        if (!user) {
+            // dacă nu există, creează un user implicit
+            return User.create({
+                email: 'admin@example.com',
+                password: 'test'
+            });
+        }
+        return user;
+    })
+    .then(user => {
         return user.getCart().then(cart => {
             if (!cart) {
                 return user.createCart();
@@ -114,5 +122,6 @@ sequelize
         app.listen(3000);
     })
     .catch(err => console.log(err));
+
 
 
