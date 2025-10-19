@@ -5,6 +5,7 @@ const session = require('express-session')
 const app = express();
 const pg = require('pg');
 const pgSession = require('connect-pg-simple')(session);
+const csrf = require('csurf');
 
 const pgPool = new pg.Pool({
     host: 'localhost',
@@ -13,6 +14,8 @@ const pgPool = new pg.Pool({
     password: '1111',
     database: 'NodeJS',
 })
+
+const csrfProtection = csrf()
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -30,14 +33,13 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        maxAge: 60 * 60 * 60,
+        maxAge: 60 * 60 * 60 * 1000,
     }
 }))
 
-app.use((req, res, next) => {
-    res.locals.isAuthenticated = req.session.isLoggedIn;
-    next();
-});
+//after creating session add csrf
+
+app.use(csrfProtection)
 
 const sequelize = require('./util/database');
 const adminRoutes = require('./routes/admin');
@@ -63,6 +65,13 @@ app.use((req, res, next) => {
         })
         .catch(err => console.log(err));
 });
+//send csrf token for every view and request
+//use locals cauze are used only in views
+app.use((req, res, next) => {
+    res.locals.isAuthenticated = req.session.isLoggedIn;
+    res.locals.csrfToken = req.csrfToken();
+    next();
+})
 
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
