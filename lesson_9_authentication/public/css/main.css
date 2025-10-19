@@ -323,3 +323,19 @@ form {
     position: relative;
 }
 
+.user-message {
+    margin: auto;
+    width: 300px;
+    border-radius: 5px;
+    padding: 0.1rem;
+    border: 1px solid #195bdc;
+    background: #8a8aea;
+    text-align: center;
+}
+
+.user-message--error {
+    border-color: red;
+    background: #eeb8b8;
+    color: red;
+}
+

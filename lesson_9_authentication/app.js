@@ -6,6 +6,7 @@ const app = express();
 const pg = require('pg');
 const pgSession = require('connect-pg-simple')(session);
 const csrf = require('csurf');
+const flash = require('connect-flash');
 
 const pgPool = new pg.Pool({
     host: 'localhost',
@@ -40,6 +41,10 @@ app.use(session({
 //after creating session add csrf
 
 app.use(csrfProtection)
+
+//after we can use it everywere
+
+app.use(flash())
 
 const sequelize = require('./util/database');
 const adminRoutes = require('./routes/admin');
