@@ -20,7 +20,8 @@
     "start_server_10_databse_sequilize": "nodemon lesson_7_sequillize/app.js",
     "start_server_11_session_cockies": "nodemon lesson_8_session_coockies/app.js",
     "start_server_12_authentication": "nodemon lesson_9_authentication/app.js",
-    "start_server_13_mail": "nodemon lesson_10_mails/app.js"
+    "start_server_13_mail": "nodemon lesson_10_mails/app.js",
+    "start_server_14_validation": "nodemon lesson_11_validation/app.js"
   },
   "repository": {
     "type": "git",
