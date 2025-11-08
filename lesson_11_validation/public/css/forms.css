@@ -25,3 +25,9 @@
 .form-control textarea {
     min-height: 100px;
 }
+
+.form-control input.invalid,
+.form-control textarea.invalid {
+    border-color: red;
+    color: red
+}

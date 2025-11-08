@@ -4,6 +4,8 @@ const nodemailer = require("nodemailer");
 require('dotenv').config();
 const crypto = require("crypto");
 const {Op} = require("sequelize");
+const {validationResult} = require("express-validator");
+const {logger} = require("sequelize/lib/utils/logger");
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -16,6 +18,7 @@ const transporter = nodemailer.createTransport({
 
 exports.getLogin = (req, res, next) => {
     let message = req.flash("error");
+
     if (message.length > 0) {
         message = message[0];
     } else {
@@ -25,18 +28,36 @@ exports.getLogin = (req, res, next) => {
         path: '/login',
         pageTitle: 'Login',
         errorMessage: message,
+        validationErrors: [],
+        oldInput: {
+            email: '',
+            password: '',
+        }
     });
 }
 exports.postLogin = (req, res, next) => {
     const {email, password} = req.body;
+    const errors = validationResult(req)
+
+    if (!errors.isEmpty()) {
+        console.log(errors.array().find(e => {
+            console.log(e)
+        }));
+        return res.status(422).render('auth/login', {
+            path: '/login',
+            pageTitle: 'Login',
+            errorMessage: "Invalid E-mail or Password",
+            oldInput: {email: email, password: password},
+            validationErrors: errors.array()
+        });
+    }
 
     User.findOne({where: {email}})
         .then(user => {
             if (!user) {
-                req.flash('error', 'Invalid email or password!');
+                req.flash('error', response.array()[0].msg);
                 return res.redirect('/login');
             }
-
             return bcrypt.compare(password, user.password).then(isMatch => {
                 if (!isMatch) {
                     return res.redirect('/login');
@@ -62,40 +83,35 @@ exports.postLogin = (req, res, next) => {
 };
 
 exports.postSignup = async (req, res, next) => {
-    const email = req.body.email;
+    const email = req.body.email.trim().toLowerCase();
     const password = req.body.password;
-    const confirmPassword = req.body.confirmPassword;
 
-    User.findOne({where: {email: email}}).then(userDoc => {
-        if (userDoc) {
-            req.flash('error', 'Email already exists!');
-            return res.redirect('/signup');
-        }
-        return bcrypt.hash(password, 12).then(hashedPassword => {
-            const user = new User({
-                email: email,
-                password: hashedPassword,
-            })
-            return user.save()
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        console.log(errors.array().find(e => {
+            console.log(e)
+        }));
+        return res.status(422).render('auth/signup', {
+            path: '/signup',
+            pageTitle: 'Signup',
+            errorMessage: errors.array()[0].msg,
+            oldInput: {email: email, password: password, confirmPassword: req.body.confirmPassword},
+            validationErrors: errors.array()
         });
+    }
 
-    }).then(result => {
-        console.log(result.email)
-        res.redirect('/login')
-        return transporter.sendMail({
-            from: "leneshul@gmail.com",
-            to: result.email,
-            subject: "New User Authentication",
-            html: "<h1>You succesfully signed up!</h1>",
-        })
+    const hashedPassword = await bcrypt.hash(password, 12);
+    const newUser = await User.create({email, password: hashedPassword});
 
-    })
+    await transporter.sendMail({
+        from: "leneshul@gmail.com",
+        to: newUser.email,
+        subject: "New User Authentication",
+        html: "<h1>You successfully signed up!</h1>",
+    });
 
-        .catch((err) => {
-            console.log(err)
-        })
-
-}
+    return res.redirect('/login');
+};
 
 exports.getSignup = (req, res, next) => {
 
@@ -110,6 +126,12 @@ exports.getSignup = (req, res, next) => {
         path: '/signup',
         pageTitle: 'Signup',
         errorMessage: message,
+        oldInput: {
+            email: "",
+            password: "",
+            confirmPassword: "",
+        },
+        validationErrors: []
     })
 }
 
@@ -149,7 +171,7 @@ exports.postResetPassword = (req, res, next) => {
 
                 if (!user) {
                     req.flash('error', 'Invalid email !!!')
-                    res.redirect('/reset');
+                    return res.redirect('/reset');
                 }
                 user.resetToken = token;
                 user.resetTokenExpires = Date.now() + 60 * 60 * 1000;
