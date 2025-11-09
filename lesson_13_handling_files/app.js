@@ -9,6 +9,7 @@ const pg = require('pg');
 const pgSession = require('connect-pg-simple')(session);
 const csrf = require('csurf');
 const flash = require('connect-flash');
+const multer = require('multer');
 
 // ============================
 // ⚙️ Configurare Express app
@@ -37,6 +38,30 @@ app.set('views', path.join(__dirname, 'views'));
 // ============================
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/images', express.static(path.join(__dirname, 'images')));
+// app.use(multer({ if we want to store in a folder locally
+//     dest: path.join(__dirname, 'images')
+// }).single('image'));
+const fileStorage = multer.diskStorage({
+    destination: (req, file, callback) => {
+        callback(null, path.join(__dirname, 'images'));
+    },
+    filename: (req, file, callback) => {
+        callback(null, new Date().toISOString().replace(/[:.]/g, '-') + ' - ' + file.originalname);
+    }
+})
+
+const fileFilter = (req, file, callback) => {
+    if (file.mimetype === 'image/png' ||
+        file.mimetype === 'image/jpg' ||
+        file.mimetype === 'image/jpeg') {
+        callback(null, true);
+    } else {
+        callback(null, false)
+
+    }
+}
+app.use(multer({storage: fileStorage, fileFilter: fileFilter}).single('image'));
 
 // ============================
 // 💾 Configurare sesiune cu stocare în PostgreSQL
