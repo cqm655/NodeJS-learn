@@ -38,8 +38,6 @@ exports.postAddProduct = (req, res, next) => {
 
     const imageUrl = path.join('images', image.filename).replace(/\\/g, '/');
 
-    console.log(image)
-
     if (!errors.isEmpty()) {
         return res.status(422).render('admin/edit-product', {
             pageTitle: 'Add Product',
