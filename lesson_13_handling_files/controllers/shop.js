@@ -1,6 +1,8 @@
 const Product = require("../models/product");
+const Order = require("../models/order");
 const fs = require('fs');
 const path = require("path");
+const PDFDocument = require("pdfkit");
 
 exports.getProducts = (req, res, next) => {
     Product.findAll().then((rows, fieldData) => {
@@ -60,43 +62,32 @@ exports.getCart = (req, res, next) => {
     })
 }
 exports.postCart = (req, res, next) => {
-    const prodId = req.body.id
+    const prodId = req.body.id;
     let fetchedCart;
-    req.user.getCart().then((cart) => {
-        fetchedCart = cart;
-        return cart.getProducts({where: {id: prodId}}).then((products) => {
-            let product;
-            if (products.length > 0) {
-                product = products[0];
-            }
+
+    req.user.getCart()
+        .then(cart => {
+            fetchedCart = cart;
+            return cart.getProducts({where: {id: prodId}});
+        })
+        .then(products => {
+            let product = products[0];
             let newQuantity = 1;
+
             if (product) {
-                const oldQuantity = product.cartItem.quantity;
-                newQuantity = oldQuantity + 1;
-                return fetchedCart.addProduct(product, {
-                    through: {quantity: newQuantity},
-                })
+                newQuantity = product.cartItem.quantity + 1;
+                return fetchedCart.addProduct(product, {through: {quantity: newQuantity}});
             }
-            return Product.findByPk(prodId).then((product) => {
-                return fetchedCart.addProduct(product, {through: {quantity: newQuantity}})
-            })
-                .catch(err => {
-                    const error = new Error(err.message);
-                    err.httpStatus = 500;
-                    return next(error)
+
+            return Product.findByPk(prodId)
+                .then(product => {
+                    return fetchedCart.addProduct(product, {through: {quantity: newQuantity}});
                 });
         })
-    }).catch(err => console.log(err));
-    Product.findByPk(prodId).then(product => {
-        console.log('product', product)
-        product.save()
-        res.redirect('/cart')
-    }).catch(err => {
-        const error = new Error(err.message);
-        err.httpStatus = 500;
-        return next(error)
-    });
-}
+        .then(() => res.redirect('/cart'))
+        .catch(err => next(err));
+};
+
 exports.postCartDeleteProduct = (req, res, next) => {
     const prodId = req.body.id
     req.user.getCart().then((cart) => {
@@ -165,17 +156,45 @@ exports.postOrder = (req, res, next) => {
 }
 exports.getInvoice = (req, res, next) => {
     const orderId = req.params.orderId;
-    const invoiceName = 'Invoice-' + orderId + '.pdf'
-    const invoicePath = path.join(__dirname, '..', 'invoices', invoiceName)
-    fs.readFile(invoicePath, (err, data) => {
-        if (err) {
-            return next(err);
-        }
 
-        const file = fs.createReadStream(invoicePath);
+    Order.findByPk(orderId, {include: ['products']}).then((order) => {
+        if (!order) {
+            return next(new Error('No Order'));
+        }
+        if (order.UserId.toString() !== req.user.id.toString()) {
+            return next(new Error('You are not logged in'));
+        }
+        const invoiceName = 'Invoice-' + orderId + '.pdf'
+        const invoicePath = path.join(__dirname, '..', 'invoices', invoiceName)
+
+        const pdfDoc = new PDFDocument();
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', 'inline; filename="' + invoiceName + '"');
 
-        file.pipe(res);
+        pdfDoc.pipe(fs.createWriteStream(invoicePath));
+        pdfDoc.pipe(res);
+
+        pdfDoc.fontSize(26).text('Invoice PDF', {
+            underline: true
+        });
+
+        pdfDoc.text('------------------------------')
+
+        let total = 0;
+
+        order.products.forEach(prod => {
+            const line = `${prod.title} - ${prod.orderItem.quantity} x ${prod.price}`;
+            total += prod.orderItem.quantity * prod.price;
+            pdfDoc.fontSize(14).text(line);
+        });
+
+        pdfDoc.text('----------------------------------------');
+        pdfDoc.fontSize(20).text('Total: ' + total + ' MDL');
+
+        pdfDoc.end();
+
+    }).catch(err => {
+        next(new Error(err));
     })
+
 }
