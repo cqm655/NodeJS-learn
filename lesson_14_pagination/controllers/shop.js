@@ -4,19 +4,36 @@ const fs = require('fs');
 const path = require("path");
 const PDFDocument = require("pdfkit");
 
-exports.getProducts = (req, res, next) => {
-    Product.findAll().then((rows, fieldData) => {
+exports.getProducts = async (req, res, next) => {
+    try {
+        const page = parseInt(req.query.page) || 1; // if false we will use 1
+        const limit = parseInt(req.query.limit) || 2;
+        const offset = (page - 1) * limit;
+
+        const {count, rows} = await Product.findAndCountAll({
+            limit,
+            offset,
+            order: [['id', 'ASC']],
+        });
+
+        const totalPages = Math.ceil(count / limit);
+
         res.render('shop/product-list', {
             products: rows,
-            pageTitle: 'All Products',
+            currentPage: page,
+            hasNextPage: limit * page < count,
+            hasPreviousPage: page > 1,
+            nextPage: page + 1,
+            prevPage: page - 1,
+            lastPage: totalPages,
+            pageTitle: 'Shop',
             path: '/products',
-        })
-    }).catch(err => {
-        const error = new Error(err.message);
-        err.httpStatus = 500;
-        return next(error)
+        });
 
-    })
+    } catch (err) {
+        console.error(err);
+        return next(err);
+    }
 }
 exports.getProduct = (req, res, next) => {
     const productId = req.params.productId;
@@ -33,8 +50,6 @@ exports.getProduct = (req, res, next) => {
     })
 
 }
-
-const ITEMS_PER_PAGE = 10;
 
 exports.getIndex = async (req, res, next) => {
     try {
