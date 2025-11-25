@@ -23,7 +23,8 @@
     "start_server_13_mail": "nodemon lesson_10_mails/app.js",
     "start_server_14_validation": "nodemon lesson_11_validation/app.js",
     "start_server_15_handling_erros": "nodemon lesson_12_handling_errors/app.js",
-    "start_server_16_handling_files": "nodemon lesson_13_handling_files/app.js"
+    "start_server_16_handling_files": "nodemon lesson_13_handling_files/app.js",
+    "start_server_17_pagination": "nodemon lesson_14_pagination/app.js"
   },
   "repository": {
     "type": "git",
