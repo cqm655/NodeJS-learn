@@ -26,7 +26,7 @@
     "start_server_16_handling_files": "nodemon lesson_13_handling_files/app.js",
     "start_server_17_pagination": "nodemon lesson_14_pagination/app.js",
     "start_server_18_async": "nodemon lesson_15_asynch/app.js",
-    "start_server_17_respapi": "nodemon lesson_16_RestApi/app.js"
+    "start_server_17_restapi": "nodemon lesson_16_RestApi/backend/app.js"
   },
   "repository": {
     "type": "git",
@@ -44,6 +44,7 @@
     "pug-cli": "^1.0.0-alpha6"
   },
   "dependencies": {
+    "18": "^0.0.0",
     "bcryptjs": "^3.0.2",
     "body-parser": "^2.2.0",
     "connect-flash": "^0.1.1",
@@ -63,6 +64,7 @@
     "pg": "^8.16.3",
     "pg-hstore": "^2.3.4",
     "pug": "^3.0.3",
+    "react-scripts": "^5.0.1",
     "sequelize": "^6.37.7"
   }
 }
