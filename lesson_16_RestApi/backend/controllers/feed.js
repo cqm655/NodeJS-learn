@@ -1,14 +1,20 @@
 const {validationResult} = require('express-validator')
 const fs = require('fs');
 const path = require('path');
-
 const Post = require('../models/post');
-const {upgrade} = require("nodemailer/.ncurc");
-const {where} = require("sequelize");
 
 exports.getPosts = (req, res, next) => {
 
-    Post.findAll()
+    const currentPage = req.query.page || 1;
+    const perPage = 2;
+    let totalItems;
+
+    Post.findAndCountAll()
+        .then(count => {
+            totalItems = count;
+            return Post.findAll()
+        })
+
         .then(posts => {
             res.status(200).json({posts: posts});
         })
