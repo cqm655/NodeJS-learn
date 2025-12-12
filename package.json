@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "node.js course",
   "main": "server.js",
+  "type": "commonjs",
   "scripts": {
     "start_server_1": "nodemon lesson_1/server.js",
     "start_server_2": "nodemon lesson_1/exercise/server.js",
@@ -26,7 +27,7 @@
     "start_server_16_handling_files": "nodemon lesson_13_handling_files/app.js",
     "start_server_17_pagination": "nodemon lesson_14_pagination/app.js",
     "start_server_18_async": "nodemon lesson_15_asynch/app.js",
-    "start_server_17_restapi": "nodemon lesson_16_RestApi/backend/app.js"
+    "start_server_19_restapi": "nodemon lesson_16_RestApi/backend/app.js"
   },
   "repository": {
     "type": "git",
@@ -65,6 +66,7 @@
     "pg-hstore": "^2.3.4",
     "pug": "^3.0.3",
     "react-scripts": "^5.0.1",
-    "sequelize": "^6.37.7"
+    "sequelize": "^6.37.7",
+    "uuid": "^8.3.2"
   }
 }

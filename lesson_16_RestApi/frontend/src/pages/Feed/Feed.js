@@ -21,6 +21,7 @@ class Feed extends Component {
         editLoading: false
     };
 
+
     componentDidMount() {
         fetch('URL')
             .then(res => {
@@ -36,6 +37,7 @@ class Feed extends Component {
 
         this.loadPosts();
     }
+
 
     loadPosts = direction => {
         if (direction) {
@@ -58,14 +60,21 @@ class Feed extends Component {
                 return res.json();
             })
             .then(resData => {
+                console.log(resData);
                 this.setState({
-                    posts: resData.posts || [],
+                    posts: resData.posts.map(post => {
+                        return {
+                            ...post,
+                            imagePath: post.imageUrl,
+                        }
+                    }),
                     totalPosts: resData.totalItems || 0,
                     postsLoading: false
                 });
             })
             .catch(this.catchError);
     };
+
 
     statusUpdateHandler = event => {
         event.preventDefault();
@@ -82,13 +91,15 @@ class Feed extends Component {
             .catch(this.catchError);
     };
 
+
     newPostHandler = () => {
         this.setState({isEditing: true});
     };
 
+
     startEditPostHandler = postId => {
         this.setState(prevState => {
-            const loadedPost = {...prevState.posts.find(p => p._id === postId)};
+            const loadedPost = {...prevState.posts.find(p => p.id === postId)};
 
             return {
                 isEditing: true,
@@ -97,28 +108,34 @@ class Feed extends Component {
         });
     };
 
+
     cancelEditHandler = () => {
         this.setState({isEditing: false, editPost: null});
     };
+
 
     finishEditHandler = postData => {
         this.setState({
             editLoading: true
         });
         // Set up data (with image!)
+        console.log("edit")
+        const formData = new FormData();
+        formData.append('title', postData.title);
+        formData.append('content', postData.content);
+        formData.append('image', postData.image);
+
         let url = 'http://localhost:8080/feed/post';
         let method = 'POST';
+        console.log(this.state.editPost.id)
         if (this.state.editPost) {
-            url = 'URL';
+            url = 'http://localhost:8080/feed/post/' + this.state.editPost.id;
+            method = 'PUT';
         }
 
         fetch(url, {
             method: method,
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({
-                title: postData.title,
-                content: postData.content
-            }),
+            body: formData,
         })
             .then(res => {
                 if (res.status !== 200 && res.status !== 201) {
@@ -163,13 +180,17 @@ class Feed extends Component {
             });
     };
 
+
     statusInputChangeHandler = (input, value) => {
         this.setState({status: value});
     };
 
+
     deletePostHandler = postId => {
         this.setState({postsLoading: true});
-        fetch('URL')
+        fetch('http://localhost:8080/feed/post/' + postId, {
+            method: 'DELETE',
+        })
             .then(res => {
                 if (res.status !== 200 && res.status !== 201) {
                     throw new Error('Deleting a post failed!');
@@ -189,13 +210,16 @@ class Feed extends Component {
             });
     };
 
+
     errorHandler = () => {
         this.setState({error: null});
     };
 
+
     catchError = error => {
         this.setState({error: error});
     };
+
 
     render() {
         return (
@@ -245,15 +269,15 @@ class Feed extends Component {
                         >
                             {this.state.posts.map(post => (
                                 <Post
-                                    key={post._id}
-                                    id={post._id}
+                                    key={post.id}
+                                    id={post.id}
                                     author={post.creator.name}
                                     date={new Date(post.createdAt).toLocaleDateString('en-US')}
                                     title={post.title}
                                     image={post.imageUrl}
                                     content={post.content}
-                                    onStartEdit={this.startEditPostHandler.bind(this, post._id)}
-                                    onDelete={this.deletePostHandler.bind(this, post._id)}
+                                    onStartEdit={this.startEditPostHandler.bind(this, post.id)}
+                                    onDelete={this.deletePostHandler.bind(this, post.id)}
                                 />
                             ))}
                         </Paginator>
