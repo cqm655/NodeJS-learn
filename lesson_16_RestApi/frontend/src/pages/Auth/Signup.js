@@ -30,7 +30,6 @@ class Signup extends Component {
         }
     };
 
-
     inputChangeHandler = (input, value) => {
         this.setState(prevState => {
             let isValid = true;
@@ -56,7 +55,6 @@ class Signup extends Component {
         });
     };
 
-
     inputBlurHandler = input => {
         this.setState(prevState => {
             return {
@@ -71,11 +69,14 @@ class Signup extends Component {
         });
     };
 
-
     render() {
         return (
             <Auth>
-                <form onSubmit={e => this.props.onSignup(e, this.state)}>
+                <form onSubmit={e => this.props.onSignup(e, {
+                    email: this.state.signupForm.email.value,
+                    name: this.state.signupForm.name.value,
+                    password: this.state.signupForm.password.value
+                })}>
                     <Input
                         id="email"
                         label="Your E-Mail"

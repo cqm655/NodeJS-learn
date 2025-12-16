@@ -4,27 +4,28 @@ const path = require('path');
 const Post = require('../models/post');
 
 exports.getPosts = (req, res, next) => {
+    const currentPage = parseInt(req.query.page, 10) || 1;
+    const perPage = parseInt(req.query.limit, 10) || 2;
+    const offset = (currentPage - 1) * perPage;
 
-    const currentPage = req.query.page || 1;
-    const perPage = 2;
-    let totalItems;
-
-    Post.findAndCountAll()
-        .then(count => {
-            totalItems = count;
-            return Post.findAll()
-        })
-
-        .then(posts => {
-            res.status(200).json({posts: posts});
+    Post.findAndCountAll({
+        limit: perPage,
+        offset: offset,
+        order: [['createdAt', 'DESC']]
+    })
+        .then(result => {
+            res.status(200).json({
+                posts: result.rows,
+                totalItems: result.count
+            });
         })
         .catch(err => {
             if (!err.statusCode) {
                 err.statusCode = 500;
             }
-            next(err)
-        })
-}
+            next(err);
+        });
+};
 
 const clearImage = filePath => {
     const clearImage = filePath => {

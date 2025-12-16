@@ -17,13 +17,12 @@ class App extends Component {
     state = {
         showBackdrop: false,
         showMobileNav: false,
-        isAuth: true,
+        isAuth: false,
         token: null,
         userId: null,
         authLoading: false,
         error: null
     };
-
 
     componentDidMount() {
         const token = localStorage.getItem('token');
@@ -42,16 +41,13 @@ class App extends Component {
         this.setAutoLogout(remainingMilliseconds);
     }
 
-
     mobileNavHandler = isOpen => {
         this.setState({showMobileNav: isOpen, showBackdrop: isOpen});
     };
 
-
     backdropClickHandler = () => {
         this.setState({showBackdrop: false, showMobileNav: false, error: null});
     };
-
 
     logoutHandler = () => {
         this.setState({isAuth: false, token: null});
@@ -59,7 +55,6 @@ class App extends Component {
         localStorage.removeItem('expiryDate');
         localStorage.removeItem('userId');
     };
-
 
     loginHandler = (event, authData) => {
         event.preventDefault();
@@ -102,11 +97,16 @@ class App extends Component {
             });
     };
 
-
     signupHandler = (event, authData) => {
         event.preventDefault();
         this.setState({authLoading: true});
-        fetch('URL')
+
+        console.log(authData)
+        fetch('http://localhost:8080/auth/signup', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(authData)
+        })
             .then(res => {
                 if (res.status === 422) {
                     throw new Error(
@@ -134,18 +134,15 @@ class App extends Component {
             });
     };
 
-
     setAutoLogout = milliseconds => {
         setTimeout(() => {
             this.logoutHandler();
         }, milliseconds);
     };
 
-
     errorHandler = () => {
         this.setState({error: null});
     };
-
 
     render() {
         let routes = (

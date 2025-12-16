@@ -21,7 +21,6 @@ class Feed extends Component {
         editLoading: false
     };
 
-
     componentDidMount() {
         fetch('URL')
             .then(res => {
@@ -37,7 +36,6 @@ class Feed extends Component {
 
         this.loadPosts();
     }
-
 
     loadPosts = direction => {
         if (direction) {
@@ -75,7 +73,6 @@ class Feed extends Component {
             .catch(this.catchError);
     };
 
-
     statusUpdateHandler = event => {
         event.preventDefault();
         fetch('URL')
@@ -91,11 +88,9 @@ class Feed extends Component {
             .catch(this.catchError);
     };
 
-
     newPostHandler = () => {
         this.setState({isEditing: true});
     };
-
 
     startEditPostHandler = postId => {
         this.setState(prevState => {
@@ -108,11 +103,9 @@ class Feed extends Component {
         });
     };
 
-
     cancelEditHandler = () => {
         this.setState({isEditing: false, editPost: null});
     };
-
 
     finishEditHandler = postData => {
         this.setState({
@@ -127,7 +120,7 @@ class Feed extends Component {
 
         let url = 'http://localhost:8080/feed/post';
         let method = 'POST';
-        console.log(this.state.editPost.id)
+       
         if (this.state.editPost) {
             url = 'http://localhost:8080/feed/post/' + this.state.editPost.id;
             method = 'PUT';
@@ -145,7 +138,7 @@ class Feed extends Component {
             })
             .then(resData => {
                 const post = {
-                    _id: resData.post._id,
+                    id: resData.post.id,
                     title: resData.post.title,
                     content: resData.post.content,
                     creator: resData.post.creator,
@@ -155,7 +148,7 @@ class Feed extends Component {
                     let updatedPosts = [...prevState.posts];
                     if (prevState.editPost) {
                         const postIndex = prevState.posts.findIndex(
-                            p => p._id === prevState.editPost._id
+                            p => p.id === prevState.editPost.id
                         );
                         updatedPosts[postIndex] = post;
                     } else if (prevState?.posts.length < 2) {
@@ -180,11 +173,9 @@ class Feed extends Component {
             });
     };
 
-
     statusInputChangeHandler = (input, value) => {
         this.setState({status: value});
     };
-
 
     deletePostHandler = postId => {
         this.setState({postsLoading: true});
@@ -210,16 +201,13 @@ class Feed extends Component {
             });
     };
 
-
     errorHandler = () => {
         this.setState({error: null});
     };
 
-
     catchError = error => {
         this.setState({error: error});
     };
-
 
     render() {
         return (

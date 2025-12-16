@@ -7,7 +7,14 @@ const multer = require('multer');
 const pg = require('pg');
 const pgSession = require('connect-pg-simple')(session);
 // ==========
+
+// ========   database Models
+const User = require('./models/user');
+const Post = require('./models/post');
+
+// ========
 const feedRoutes = require('./routes/feed');
+const authRoutes = require('./routes/auth');
 
 // ===== create PostgreSQL conection
 const pgPool = new pg.Pool({
@@ -50,6 +57,10 @@ const fileFilter = (req, file, callback) => {
 
 app.use(express.json());
 app.use(bodyParser.json()); //application/json
+
+app.use('/feed', feedRoutes);
+app.use('/auth', authRoutes);
+
 app.use(multer({storage: fileStorage, fileFilter: fileFilter}).single('image'));
 app.use('/images', express.static(path.join(__dirname, 'images')));
 // ============================
@@ -72,7 +83,10 @@ app.use(session({
 // 🧠 Modele Sequelize și relații
 // ============================
 const sequelize = require('./utils/database');
-const Post = require('./models/post');
+
+// ======  Databse Relations
+Post.belongsTo(User, {constraints: true, onDelete: 'CASCADE'});
+User.hasMany(Post);
 
 sequelize.sync({force: false})
     .then(() => {
@@ -85,8 +99,9 @@ app.use((error, req, res, next) => {
     console.log(error);
     const statusCode = error.statusCode;
     const message = error.message;
+    const data = error.data;
 
-    res.status(statusCode).json(message);
+    res.status(statusCode).json({message: message, data: data});
 })
 
 app.listen(8080);

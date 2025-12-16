@@ -14,11 +14,7 @@ const Post = sequelize.define('post', {
     content: {
         type: DataTypes.STRING,
         allowNull: false
-    },
-    creator: {
-        type: DataTypes.JSON,
-        allowNull: true
-    },
+    }
 
 }, {timestamps: true})
 
