@@ -21,7 +21,12 @@ router.post('/signup',
     body('password')
         .isLength({min: 5})
         .trim(),
-    body('name').trim().notEmpty().withMessage('Name cannot be empty')
+    body('name')
+        .trim()
+        .notEmpty()
+        .withMessage('Name cannot be empty')
     , authController.signup)
+
+router.post('/login', authController.login)
 
 module.exports = router;

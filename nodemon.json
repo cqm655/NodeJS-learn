@@ -1,0 +1,14 @@
+{
+  "ignore": [
+    "frontend/*",
+    "frontend/**/*"
+  ],
+  "watch": [
+    "app.js",
+    "routes/**/*",
+    "controllers/**/*",
+    "models/**/*",
+    "middleware/**/*"
+  ],
+  "ext": "js,json"
+}
