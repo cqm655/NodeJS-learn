@@ -16,8 +16,7 @@ router.post('/signup',
                         return Promise.reject('Email already exists');
                     }
                 })
-        })
-        .normalizeEmail(),
+        }),
     body('password')
         .isLength({min: 5})
         .trim(),
