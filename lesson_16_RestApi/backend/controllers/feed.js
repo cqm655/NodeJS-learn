@@ -2,6 +2,7 @@ const {validationResult} = require('express-validator')
 const fs = require('fs');
 const path = require('path');
 const Post = require('../models/post');
+const User = require('../models/user');
 
 exports.getPosts = (req, res, next) => {
     const currentPage = parseInt(req.query.page, 10) || 1;
@@ -11,7 +12,8 @@ exports.getPosts = (req, res, next) => {
     Post.findAndCountAll({
         limit: perPage,
         offset: offset,
-        order: [['createdAt', 'DESC']]
+        order: [['createdAt', 'DESC']],
+        include: [{model: User, attributes: ['name']}]
     })
         .then(result => {
             res.status(200).json({
@@ -28,19 +30,19 @@ exports.getPosts = (req, res, next) => {
 };
 
 const clearImage = filePath => {
-    const clearImage = filePath => {
-        filePath = path.join(__dirname, '..', filePath);
+    filePath = path.join(__dirname, '..', filePath);
 
-        try {
-            fs.unlinkSync(filePath);
-        } catch (err) {
-            console.log(err);
-        }
-    };
-}
+    try {
+        fs.unlinkSync(filePath);
+    } catch (err) {
+        console.log(err);
+    }
+};
 
 exports.createPost = (req, res, next) => {
     const errors = validationResult(req);
+    console.log(errors)
+
     if (!errors.isEmpty()) {
         const error = new Error('Validation failed, entered data is incorrect.');
         error.statusCode = 422;
@@ -56,24 +58,28 @@ exports.createPost = (req, res, next) => {
     const title = req.body.title;
     const content = req.body.content;
     const imageUrl = 'images/' + req.file.filename;
+    // userId trebuie să vină din autentificare
+    const userId = req.userId;
 
-    const post = new Post({
-        title, content, imageUrl: imageUrl, creator: {
-            name: 'Iurii'
-        },
-    });
-//create a post in DB
-    post.save().then((result) => {
-        res.status(201).json({
-            message: 'Post created successfully',
-            post: result
-        });
-    }).catch(err => {
-        if (!err.statusCode) {
-            err.statusCode = 500;
-        }
-        next(err)
+    Post.create({
+        title,
+        content,
+        imageUrl,
+        userId
     })
+        .then(post => {
+            return post.reload({include: [User]}); // populate creator
+        })
+        .then(post => {
+            res.status(201).json({
+                message: 'Post created successfully',
+                post: post
+            });
+        })
+        .catch(err => {
+            if (!err.statusCode) err.statusCode = 500;
+            next(err);
+        });
 
 }
 

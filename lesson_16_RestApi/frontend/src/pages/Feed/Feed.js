@@ -21,6 +21,7 @@ class Feed extends Component {
         editLoading: false
     };
 
+
     componentDidMount() {
         fetch('URL')
             .then(res => {
@@ -37,6 +38,7 @@ class Feed extends Component {
         this.loadPosts();
     }
 
+
     loadPosts = direction => {
         if (direction) {
             this.setState({postsLoading: true, posts: []});
@@ -50,7 +52,11 @@ class Feed extends Component {
             page--;
             this.setState({postPage: page});
         }
-        fetch('http://localhost:8080/feed/posts?page=' + page)
+        fetch('http://localhost:8080/feed/posts?page=' + page, {
+            headers: {
+                Authorization: 'Bearer ' + this.props.token
+            }
+        })
             .then(res => {
                 if (res.status !== 200) {
                     throw new Error('Failed to fetch posts.');
@@ -64,6 +70,7 @@ class Feed extends Component {
                         return {
                             ...post,
                             imagePath: post.imageUrl,
+                            creator: post.creator,
                         }
                     }),
                     totalPosts: resData.totalItems || 0,
@@ -72,6 +79,7 @@ class Feed extends Component {
             })
             .catch(this.catchError);
     };
+
 
     statusUpdateHandler = event => {
         event.preventDefault();
@@ -88,9 +96,11 @@ class Feed extends Component {
             .catch(this.catchError);
     };
 
+
     newPostHandler = () => {
         this.setState({isEditing: true});
     };
+
 
     startEditPostHandler = postId => {
         this.setState(prevState => {
@@ -103,9 +113,11 @@ class Feed extends Component {
         });
     };
 
+
     cancelEditHandler = () => {
         this.setState({isEditing: false, editPost: null});
     };
+
 
     finishEditHandler = postData => {
         this.setState({
@@ -120,7 +132,7 @@ class Feed extends Component {
 
         let url = 'http://localhost:8080/feed/post';
         let method = 'POST';
-       
+
         if (this.state.editPost) {
             url = 'http://localhost:8080/feed/post/' + this.state.editPost.id;
             method = 'PUT';
@@ -173,9 +185,11 @@ class Feed extends Component {
             });
     };
 
+
     statusInputChangeHandler = (input, value) => {
         this.setState({status: value});
     };
+
 
     deletePostHandler = postId => {
         this.setState({postsLoading: true});
@@ -201,13 +215,16 @@ class Feed extends Component {
             });
     };
 
+
     errorHandler = () => {
         this.setState({error: null});
     };
 
+
     catchError = error => {
         this.setState({error: error});
     };
+
 
     render() {
         return (
@@ -259,7 +276,7 @@ class Feed extends Component {
                                 <Post
                                     key={post.id}
                                     id={post.id}
-                                    author={post.creator.name}
+                                    author={post.name}
                                     date={new Date(post.createdAt).toLocaleDateString('en-US')}
                                     title={post.title}
                                     image={post.imageUrl}

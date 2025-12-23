@@ -8,10 +8,14 @@ const router = express.Router();
 
 router.get('/posts', feedController.getPosts);
 
-router.post('/post', [
-    body('title').isString().isLength({min: 5}).trim(),
-    body("content").isString().isLength({min: 5}).trim()
-], feedController.createPost);
+router.post(
+    '/post',
+    [
+        body('title').trim().notEmpty().withMessage('Title is required'),
+        body('content').trim().isLength({min: 5}).withMessage('Content must be at least 5 characters')
+    ],
+    feedController.createPost
+);
 
 router.get('/post/:postId', feedController.getPost);
 

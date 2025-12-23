@@ -1,6 +1,5 @@
 const sequelize = require('../utils/database')
-const {Sequelize, DataTypes} = require("sequelize");
-const Post = require('./post');
+const {DataTypes} = require("sequelize");
 
 const User = sequelize.define('user_rest_api', {
     email: {

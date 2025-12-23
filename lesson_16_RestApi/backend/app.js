@@ -58,10 +58,12 @@ const fileFilter = (req, file, callback) => {
 app.use(express.json());
 app.use(bodyParser.json()); //application/json
 
+// use multer before routes !!!
+app.use(multer({storage: fileStorage, fileFilter: fileFilter}).single('image'));
+
 app.use('/feed', feedRoutes);
 app.use('/auth', authRoutes);
 
-app.use(multer({storage: fileStorage, fileFilter: fileFilter}).single('image'));
 app.use('/images', express.static(path.join(__dirname, 'images')));
 // ============================
 // Configure session for PostgreSQL
