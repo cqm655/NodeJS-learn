@@ -27,7 +27,8 @@
     "start_server_16_handling_files": "nodemon lesson_13_handling_files/app.js",
     "start_server_17_pagination": "nodemon lesson_14_pagination/app.js",
     "start_server_18_async": "nodemon lesson_15_asynch/app.js",
-    "start_server_19_restapi": "nodemon lesson_16_RestApi/backend/app.js --ignore frontend/"
+    "start_server_19_restapi": "nodemon lesson_16_RestApi/backend/app.js --ignore frontend/",
+    "start_server_20_socket": "nodemon lesson_17_sockets/backend/app.js --ignore frontend/"
   },
   "repository": {
     "type": "git",
@@ -68,6 +69,7 @@
     "pug": "^3.0.3",
     "react-scripts": "^5.0.1",
     "sequelize": "^6.37.7",
+    "socket.io": "^4.8.3",
     "uuid": "^8.3.2"
   }
 }
