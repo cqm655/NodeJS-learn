@@ -22,7 +22,7 @@ const pgPool = new pg.Pool({
     port: 5433,
     user: 'postgres',
     password: '1111',
-    database: 'NodeJS',
+    database: 'NodeJSV2',
 });
 
 //==========

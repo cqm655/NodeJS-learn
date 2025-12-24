@@ -6,7 +6,7 @@ const User = require('../models/user');
 
 exports.getPosts = (req, res, next) => {
     const currentPage = parseInt(req.query.page, 10) || 1;
-    const perPage = parseInt(req.query.limit, 10) || 2;
+    const perPage = parseInt(req.query.limit, 10) || 4;
     const offset = (currentPage - 1) * perPage;
 
     Post.findAndCountAll({
@@ -41,7 +41,6 @@ const clearImage = filePath => {
 
 exports.createPost = (req, res, next) => {
     const errors = validationResult(req);
-    console.log(errors)
 
     if (!errors.isEmpty()) {
         const error = new Error('Validation failed, entered data is incorrect.');
@@ -71,6 +70,7 @@ exports.createPost = (req, res, next) => {
             return post.reload({include: [User]}); // populate creator
         })
         .then(post => {
+
             res.status(201).json({
                 message: 'Post created successfully',
                 post: post
@@ -135,6 +135,11 @@ exports.updatePost = (req, res, next) => {
                 error.statusCode = 404;
                 throw error;
             }
+            if (post.userId !== req.userId) {
+                const error = new Error('User not allowed to Edit Post');
+                error.statusCode = 403;
+                throw error;
+            }
             if (imageUrl !== post.imageUrl) {
                 clearImage(post.imageUrl);
             }
@@ -158,11 +163,16 @@ exports.updatePost = (req, res, next) => {
 exports.deletePost = async (req, res, next) => {
     const postId = req.params.postId;
 
-    const postToDestroy = Post.findByPk(postId)
+    Post.findByPk(postId)
         .then(async post => {
             if (!post) {
                 const error = new Error('Not Found!');
                 error.statusCode = 404;
+                throw error;
+            }
+            if (post.userId !== req.userId) {
+                const error = new Error('User not Allowed to Delete Post');
+                error.statusCode = 403;
                 throw error;
             }
             //check logged in user

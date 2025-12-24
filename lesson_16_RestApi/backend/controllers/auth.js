@@ -72,3 +72,62 @@ exports.login = (req, res, next) => {
             next(err);
         })
 }
+
+exports.status = (req, res, next) => {
+    const user = req.userId;
+    console.log(user)
+    if (!user) {
+        const error = new Error('Invalid user');
+        error.statusCode = 401;
+        throw error;
+    }
+    User.findByPk(user).then(user => {
+        if (!user) {
+            const error = new Error('Invalid user');
+            error.statusCode = 404;
+            throw error;
+        }
+        return res.status(200).json({user: user, message: 'User found successfully'});
+    })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        })
+
+}
+
+exports.updateStatus = (req, res, next) => {
+    const user = req.userId;
+    const status = req.body.status;
+
+    if (!user) {
+        const error = new Error('Invalid user');
+        error.statusCode = 401;
+        throw error;
+    }
+
+    User.findByPk(user)
+        .then(user => {
+            if (!user) {
+                const error = new Error('Invalid user');
+                error.statusCode = 404;
+                throw error;
+            }
+            user.status = status;
+            return user.save();
+
+        })
+        .then(updatedUser => {
+
+            res.status(200).json({user: updatedUser, message: 'User found successfully'});
+        })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        })
+
+}
