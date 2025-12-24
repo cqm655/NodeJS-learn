@@ -1,133 +1,143 @@
-const User = require('../models/user')
+const User = require('../models/user');
 const {validationResult} = require('express-validator');
-const bcrypt = require("bcryptjs")
-const jwt = require("jsonwebtoken");
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 require('dotenv').config();
 
-exports.signup = (req, res, next) => {
-
-    const errors = validationResult(req);
-    // ==== if we got errors
-    if (!errors.isEmpty()) {
-        const error = new Error('Validation failed, entered data is incorrect.');
-        error.statusCode = 422;
-        error.data = errors.array();
-        throw error;
-    }
-    const email = req.body.email;
-    const name = req.body.name;
-    const password = req.body.password;
-
-    console.log(email);
-
-    bcrypt.hash(password, 10).then(hashedPassword => {
-        const user = new User({email, name, password: hashedPassword});
-        return user.save();
-    }).then(result => {
-        console.log("User Created: ", result)
-        res.json({message: 'User created successfully', user: result.id})
-    }).catch(err => {
-        if (!err.statusCode) {
-            err.statusCode = 500;
+// =====================
+// SIGNUP
+// =====================
+exports.signup = async (req, res, next) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            const error = new Error('Validation failed.');
+            error.statusCode = 422;
+            error.data = errors.array();
+            throw error;
         }
+
+        const {email, name, password} = req.body;
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const user = await User.create({
+            email,
+            name,
+            password: hashedPassword
+        });
+
+        res.status(201).json({
+            message: 'User created successfully',
+            userId: user.id
+        });
+    } catch (err) {
+        err.statusCode ||= 500;
         next(err);
-    })
-}
-
-exports.login = (req, res, next) => {
-    const email = req.body.email;
-    const password = req.body.password;
-    let loadedUser;
-    console.log("login", email, password);
-    User.findOne({where: {email: email}})
-        .then(user => {
-            if (!user) {
-                const error = new Error('Invalid email');
-                error.statusCode = 401;
-                throw error;
-            }
-
-            loadedUser = user;
-            //return because will give a promise
-            return bcrypt.compare(password, user.password);
-        })
-        .then(doMatch => {
-            if (!doMatch) {
-                const error = new Error('Invalid password');
-                error.statusCode = 401;
-                throw error;
-            }
-            const token = jwt.sign({
-                email: loadedUser.email,
-                userId: loadedUser.id
-            }, process.env.JWT_SECRET, {expiresIn: '1h'});
-
-            res.status(200).json({token: token, userId: loadedUser.id.toString(), message: 'Logged in successfully'})
-        })
-        .catch(err => {
-            if (!err.statusCode) {
-                err.statusCode = 500;
-            }
-            next(err);
-        })
-}
-
-exports.status = (req, res, next) => {
-    const user = req.userId;
-    console.log(user)
-    if (!user) {
-        const error = new Error('Invalid user');
-        error.statusCode = 401;
-        throw error;
     }
-    User.findByPk(user).then(user => {
+};
+
+// =====================
+// LOGIN
+// =====================
+exports.login = async (req, res, next) => {
+    try {
+        const {email, password} = req.body;
+
+        const user = await User.findOne({where: {email}});
         if (!user) {
-            const error = new Error('Invalid user');
+            const error = new Error('Invalid email.');
+            error.statusCode = 401;
+            throw error;
+        }
+
+        const isEqual = await bcrypt.compare(password, user.password);
+        if (!isEqual) {
+            const error = new Error('Invalid password.');
+            error.statusCode = 401;
+            throw error;
+        }
+
+        const token = jwt.sign(
+            {
+                email: user.email,
+                userId: user.id
+            },
+            process.env.JWT_SECRET,
+            {expiresIn: '1h'}
+        );
+
+        res.status(200).json({
+            token,
+            userId: user.id.toString(),
+            message: 'Logged in successfully'
+        });
+    } catch (err) {
+        err.statusCode ||= 500;
+        next(err);
+    }
+};
+
+// =====================
+// GET STATUS
+// =====================
+exports.status = async (req, res, next) => {
+    try {
+        const userId = req.userId;
+
+        if (!userId) {
+            const error = new Error('Not authenticated.');
+            error.statusCode = 401;
+            throw error;
+        }
+
+        const user = await User.findByPk(userId);
+        if (!user) {
+            const error = new Error('User not found.');
             error.statusCode = 404;
             throw error;
         }
-        return res.status(200).json({user: user, message: 'User found successfully'});
-    })
-        .catch(err => {
-            if (!err.statusCode) {
-                err.statusCode = 500;
-            }
-            next(err);
-        })
 
-}
-
-exports.updateStatus = (req, res, next) => {
-    const user = req.userId;
-    const status = req.body.status;
-
-    if (!user) {
-        const error = new Error('Invalid user');
-        error.statusCode = 401;
-        throw error;
+        res.status(200).json({
+            status: user.status
+        });
+    } catch (err) {
+        err.statusCode ||= 500;
+        next(err);
     }
+};
 
-    User.findByPk(user)
-        .then(user => {
-            if (!user) {
-                const error = new Error('Invalid user');
-                error.statusCode = 404;
-                throw error;
-            }
-            user.status = status;
-            return user.save();
+// =====================
+// UPDATE STATUS
+// =====================
+exports.updateStatus = async (req, res, next) => {
+    try {
+        const userId = req.userId;
+        const {status} = req.body;
 
-        })
-        .then(updatedUser => {
+        if (!userId) {
+            const error = new Error('Not authenticated.');
+            error.statusCode = 401;
+            throw error;
+        }
 
-            res.status(200).json({user: updatedUser, message: 'User found successfully'});
-        })
-        .catch(err => {
-            if (!err.statusCode) {
-                err.statusCode = 500;
-            }
-            next(err);
-        })
+        const user = await User.findByPk(userId);
+        if (!user) {
+            const error = new Error('User not found.');
+            error.statusCode = 404;
+            throw error;
+        }
 
-}
+        user.status = status;
+        await user.save();
+
+        res.status(200).json({
+            message: 'Status updated successfully',
+            status: user.status
+        });
+    } catch (err) {
+        err.statusCode ||= 500;
+        next(err);
+    }
+};
