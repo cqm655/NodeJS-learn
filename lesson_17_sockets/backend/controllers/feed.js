@@ -144,10 +144,15 @@ exports.updatePost = async (req, res, next) => {
         post.imageUrl = imageUrl;
 
         const updatedPost = await post.save();
+        const populatedPost = await updatedPost.reload({
+            include: [{model: User, attributes: ['name']}]
+        });
+        console.log(populatedPost)
+        io.getIo().emit('posts', {action: 'updatePost', post: populatedPost.toJSON()});
 
         res.status(200).json({
             message: 'Post updated successfully',
-            post: updatedPost
+            post: populatedPost
         });
     } catch (err) {
         err.statusCode ||= 500;
@@ -176,6 +181,8 @@ exports.deletePost = async (req, res, next) => {
 
         clearImage(post.imageUrl);
         await post.destroy();
+
+        io.getIo().emit('posts', {action: 'deletePost', post: post.toJSON()});
 
         res.status(200).json({message: 'Post deleted successfully'});
     } catch (err) {

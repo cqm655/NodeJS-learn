@@ -48,6 +48,12 @@ class Feed extends Component {
             if (data.action === 'createPost') {
                 this.addPost(data.post);
             }
+            if (data.action === 'updatePost') {
+                this.addPost(data.post);
+            }
+            if (data.action === 'deletePost') {
+                this.loadPosts();
+            }
         })
     }
 
@@ -158,7 +164,7 @@ class Feed extends Component {
             editLoading: true
         });
         // Set up data (with image!)
-        console.log("edit")
+
         const formData = new FormData();
         formData.append('title', postData.title);
         formData.append('content', postData.content);
@@ -249,6 +255,7 @@ class Feed extends Component {
                     const updatedPosts = prevState.posts.filter(p => p.id !== postId);
                     return {posts: updatedPosts, postsLoading: false};
                 });
+                this.loadPosts();
             })
             .catch(err => {
                 console.log(err);
@@ -317,7 +324,7 @@ class Feed extends Component {
                                 <Post
                                     key={post.id}
                                     id={post.id}
-                                    author={post.user.name}
+                                    author={post.User?.name}
                                     date={new Date(post.createdAt).toLocaleDateString('en-US')}
                                     title={post.title}
                                     image={post.imageUrl}
