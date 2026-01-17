@@ -28,7 +28,8 @@
     "start_server_17_pagination": "nodemon lesson_14_pagination/app.js",
     "start_server_18_async": "nodemon lesson_15_asynch/app.js",
     "start_server_19_restapi": "nodemon lesson_16_RestApi/backend/app.js --ignore frontend/",
-    "start_server_20_socket": "nodemon lesson_17_sockets/backend/app.js --ignore frontend/"
+    "start_server_20_socket": "nodemon lesson_17_sockets/backend/app.js --ignore frontend/",
+    "start_server_21_graphql": "nodemon lesson_18_graphql/backend/app.js --ignore frontend/"
   },
   "repository": {
     "type": "git",
@@ -55,9 +56,11 @@
     "dotenv": "^17.2.3",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
+    "express-graphql": "^0.12.0",
     "express-handlebars": "^8.0.1",
     "express-session": "^1.18.2",
     "express-validator": "^7.3.0",
+    "graphql": "^16.12.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^8.19.1",
     "multer": "^2.0.2",
