@@ -6,11 +6,40 @@ type TestData {
     views: Int!
 }
 
+type Post {
+    id: ID!
+    title: String!
+    content: String!
+    imageUrl: String!
+    createdAt: String!
+    updatedAt: String!
+}
+
+type User {
+    id: ID!
+    name: String!
+    email: String!
+    password: String!
+    status: String!
+    posts: [Post!]!
+}
+
+input UserInputData {   
+  email: String!
+  password: String!
+  name: String!
+}
+
+type RootMutation {
+createUser(userInput: UserInputData): User!
+}
+
 type RootQuery {
     hello: TestData!
 }
 
 schema {
     query: RootQuery,
+    mutation: RootMutation
 }
 `)

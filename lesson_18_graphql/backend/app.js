@@ -36,6 +36,10 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+// to resolve graphql method not allowed
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(200)
+    }
     next(); //need to call next to continue.
 }) //allow cord, methods
 
@@ -44,6 +48,15 @@ app.use('/graphql', graphqlHTTP({
     schema: graphqlSchema,
     rootValue: graphqlResolvers,
     graphiql: true,
+    formatError(err) {
+        if (!err.originalError) {
+            return err;
+        }
+        const data = err.originalError.data;
+        const message = err.message || 'An error occurred';
+        const code = err.originalError.code || 500;
+        return {message: message, code: code, data: data};
+    }
 }))
 
 //config filestorage with multer

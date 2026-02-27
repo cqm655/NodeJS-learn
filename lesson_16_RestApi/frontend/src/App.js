@@ -105,8 +105,7 @@ class App extends Component {
     signupHandler = (event, authData) => {
         event.preventDefault();
         this.setState({authLoading: true});
-        
-        console.log("dsadosad", authData)
+
         fetch('http://localhost:8080/auth/signup', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},

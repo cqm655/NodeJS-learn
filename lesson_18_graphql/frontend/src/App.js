@@ -58,7 +58,7 @@ class App extends Component {
 
     loginHandler = (event, authData) => {
         event.preventDefault();
-        console.log("authdata", authData);
+
         this.setState({authLoading: true});
         fetch('http://localhost:8080/auth/login', {
             method: 'POST',
@@ -105,27 +105,38 @@ class App extends Component {
     signupHandler = (event, authData) => {
         event.preventDefault();
         this.setState({authLoading: true});
-        
-        console.log("dsadosad", authData)
-        fetch('http://localhost:8080/auth/signup', {
+        const graphqlQuery = {
+            query: `mutation {
+                          createUser(userInput:{
+                            email: "${authData.email}",
+                            name: "${authData.name}",
+                            password: "${authData.password}"
+                          }) {
+                            id
+                            email
+                          }
+                        }`
+        }
+
+        fetch('http://localhost:8080/graphql', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(authData)
+            body: JSON.stringify(graphqlQuery)
         })
             .then(res => {
-                if (res.status === 422) {
-                    throw new Error(
-                        "Validation failed. Make sure the email address isn't used yet!"
-                    );
-                }
-                if (res.status !== 200 && res.status !== 201) {
-                    console.log('Error!');
-                    throw new Error('Creating a user failed!');
-                }
+
                 return res.json();
             })
             .then(resData => {
-                console.log(resData);
+
+                if (resData.errors && resData.errors[0].code === 422) {
+                    throw new Error("" +
+                        "Validation failed.");
+                }
+                if (resData.errors) {
+                    throw new Error("User creation failed.")
+                }
+
                 this.setState({isAuth: false, authLoading: false});
                 this.props.history.replace('/');
             })
